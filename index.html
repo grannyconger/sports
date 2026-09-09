@@ -182,7 +182,7 @@
     </div>
 
     <div class="chips" role="group" aria-label="Quick filters">
-      <button type="button" class="chip" id="c-upcoming" aria-pressed="false">Upcoming only</button>
+      <button type="button" class="chip" id="c-past" aria-pressed="false">Show past events</button>
       <button type="button" class="chip" id="c-home" aria-pressed="false">Home</button>
       <button type="button" class="chip" id="c-away" aria-pressed="false">Away</button>
     </div>
@@ -2713,7 +2713,8 @@ window.GMC_ATHLETICS = {
     });
   }
 
-  var state = { season: "", search: "", sport: "", site: "", upcoming: false };
+  // Past contests are hidden until "Show past events" is switched on.
+  var state = { season: "", search: "", sport: "", site: "", past: false };
 
   var elx = {
     eyebrow: document.getElementById("eyebrow"),
@@ -2721,7 +2722,7 @@ window.GMC_ATHLETICS = {
     feature: document.getElementById("feature"),
     search: document.getElementById("f-search"),
     sport: document.getElementById("f-sport"),
-    upcoming: document.getElementById("c-upcoming"),
+    past: document.getElementById("c-past"),
     home: document.getElementById("c-home"),
     away: document.getElementById("c-away"),
     clear: document.getElementById("btn-clear"),
@@ -2746,7 +2747,7 @@ window.GMC_ATHLETICS = {
     if (q.get("season") != null) state.season = q.get("season");
     if (q.get("sport")) state.sport = q.get("sport");
     if (q.get("site") === "Home" || q.get("site") === "Away") state.site = q.get("site");
-    if (q.get("upcoming") === "1") state.upcoming = true;
+    if (q.get("past") === "1") state.past = true;
   })();
 
   function syncURL() {
@@ -2754,7 +2755,7 @@ window.GMC_ATHLETICS = {
     if (state.season) q.set("season", state.season);
     if (state.sport) q.set("sport", state.sport);
     if (state.site) q.set("site", state.site);
-    if (state.upcoming) q.set("upcoming", "1");
+    if (state.past) q.set("past", "1");
     var s = q.toString();
     history.replaceState(null, "", s ? "?" + s : location.pathname);
   }
@@ -2766,7 +2767,7 @@ window.GMC_ATHLETICS = {
     if (!inSeason(e)) return false;
     if (state.sport && e.sport !== state.sport) return false;
     if (state.site && e.site !== state.site) return false;
-    if (state.upcoming && toDate(e.end || e.date) < today()) return false;
+    if (!state.past && toDate(e.end || e.date) < today()) return false;
     var q = state.search.trim().toLowerCase();
     if (q) {
       var hay = [e.sport, e.team, e.event, e.venue, e.note, e.kind, e.season]
@@ -2868,7 +2869,7 @@ window.GMC_ATHLETICS = {
     if (!list.length) {
       elx.results.appendChild(el("div", { cls: "empty" },
         el("strong", { text: "No contests match those filters" }),
-        document.createTextNode("Try clearing the date range or picking a different sport.")
+        document.createTextNode("Try a different sport, or switch on “Show past events”.")
       ));
       return;
     }
@@ -2910,9 +2911,9 @@ window.GMC_ATHLETICS = {
 
   function paintChip(chip, pressed) { chip.setAttribute("aria-pressed", pressed ? "true" : "false"); }
 
-  elx.upcoming.addEventListener("click", function () {
-    state.upcoming = !state.upcoming;
-    paintChip(elx.upcoming, state.upcoming);
+  elx.past.addEventListener("click", function () {
+    state.past = !state.past;
+    paintChip(elx.past, state.past);
     renderResults(); syncURL();
   });
   elx.home.addEventListener("click", function () {
@@ -2928,14 +2929,14 @@ window.GMC_ATHLETICS = {
     renderResults(); syncURL();
   });
   elx.clear.addEventListener("click", function () {
-    state.search = ""; state.sport = ""; state.site = ""; state.upcoming = false;
+    state.search = ""; state.sport = ""; state.site = ""; state.past = false;
     elx.search.value = ""; elx.sport.value = "";
-    paintChip(elx.upcoming, false); paintChip(elx.home, false); paintChip(elx.away, false);
+    paintChip(elx.past, false); paintChip(elx.home, false); paintChip(elx.away, false);
     renderResults(); syncURL();
   });
 
   /* reflect any URL state onto the chips, then draw */
-  paintChip(elx.upcoming, state.upcoming);
+  paintChip(elx.past, state.past);
   paintChip(elx.home, state.site === "Home");
   paintChip(elx.away, state.site === "Away");
 

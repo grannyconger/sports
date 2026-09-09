@@ -23,6 +23,8 @@ Live: https://www.coachw.club/sports/
   the search text, so typing "JV" in the search box still works.
 - **The Sport dropdown reorders by season.** Whatever season tab is active (or,
   on "All seasons", whichever season today falls in) floats its sports to the top.
+- **Past events are hidden by default.** The "Show past events" chip brings back
+  everything that has already happened.
 - **"Last updated"** in the header is read from the data's own build date, so it
   is always correct after a rebuild.
 
