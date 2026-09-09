@@ -45,12 +45,8 @@
 
   .divider { width: 60px; height: 5px; margin: 28px 0; background: var(--accent); }
 
-  .lead {
-    margin: 0 0 16px;
-    font-size: 1.15rem; font-weight: 700; line-height: 1.35;
-    color: var(--navy);
-  }
-  p.body { margin: 0 0 24px; font-size: 1.05rem; line-height: 1.6; max-width: 62ch; }
+  .updated { margin: 0 0 24px; font-size: 0.95rem; color: var(--dim); }
+  .updated b { color: var(--navy); font-weight: 700; }
 
   /* spec strip: facts at a glance */
   .specs {
@@ -183,8 +179,7 @@
   <h1>GMC Athletics</h1>
   <div class="divider"></div>
 
-  <p class="lead">Every game, match and meet for the 2026-27 school year, in one place.</p>
-  <p class="body">Pick a season to filter the list and recolour the page. Dates move, so check with the coach or the front office before you travel.</p>
+  <p class="updated" id="updated">Last updated: <b id="updated-date">&mdash;</b></p>
 
   <div class="specs" id="specs" role="status" aria-live="polite"></div>
 
@@ -200,10 +195,6 @@
     <div class="field">
       <label for="f-sport">Sport</label>
       <select id="f-sport"><option value="">All sports</option></select>
-    </div>
-    <div class="field">
-      <label for="f-team">Team</label>
-      <select id="f-team"><option value="">All teams</option></select>
     </div>
 
     <div class="chips" role="group" aria-label="Quick filters">
@@ -2663,6 +2654,16 @@ window.GMC_ATHLETICS = {
       weekday: "short", month: "short", day: "numeric"
     });
   }
+  function localISO(d) {
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  // The team level is shown as part of the sport name, e.g. "Girls Basketball JV".
+  function sportLabel(e) {
+    return e.team ? e.sport + " " + e.team : e.sport;
+  }
 
   /* ---- tiny DOM builder. Data goes in as textContent, never innerHTML. ---- */
   function el(tag, opts) {
@@ -2693,7 +2694,47 @@ window.GMC_ATHLETICS = {
     document.documentElement.style.setProperty("--accent-soft", soft);
   }
 
-  var state = { season: "", search: "", sport: "", team: "", site: "", upcoming: false };
+  /* ---- which season each sport-level sits in, and how the seasons run ---- */
+  var SEASON_ORDER = ["Fall", "Winter", "Spring"];
+  var SPORT_SEASON = {};   // "Girls Golf Varsity" -> "Fall"
+  var SEASON_SPAN = {};    // "Fall" -> { min: "2026-08-12", max: "2026-11-07" }
+  DATA.forEach(function (e) {
+    var k = sportLabel(e);
+    if (!SPORT_SEASON[k]) SPORT_SEASON[k] = e.season;
+    var s = SEASON_SPAN[e.season] || (SEASON_SPAN[e.season] = { min: e.date, max: e.date });
+    if (e.date < s.min) s.min = e.date;
+    var last = e.end || e.date;
+    if (last > s.max) s.max = last;
+  });
+
+  // With no season tab chosen, order the dropdown by whatever season we are in now.
+  function currentSeasonByDate() {
+    var iso = localISO(new Date());
+    for (var i = 0; i < SEASON_ORDER.length; i++) {
+      var s = SEASON_SPAN[SEASON_ORDER[i]];
+      if (s && iso >= s.min && iso <= s.max) return SEASON_ORDER[i];
+    }
+    for (var j = 0; j < SEASON_ORDER.length; j++) {
+      var sp = SEASON_SPAN[SEASON_ORDER[j]];
+      if (sp && iso < sp.min) return SEASON_ORDER[j];
+    }
+    return SEASON_ORDER[SEASON_ORDER.length - 1];
+  }
+
+  // Sport-levels, sorted so the active (or current) season floats to the top.
+  function orderedSportLabels() {
+    var pivot = state.season || currentSeasonByDate();
+    var rank = {}; rank[pivot] = 0;
+    var n = 1;
+    SEASON_ORDER.forEach(function (s) { if (!(s in rank)) rank[s] = n++; });
+    return Object.keys(SPORT_SEASON).sort(function (a, b) {
+      var ra = rank[SPORT_SEASON[a]], rb = rank[SPORT_SEASON[b]];
+      if (ra !== rb) return ra - rb;
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
+  }
+
+  var state = { season: "", search: "", sport: "", site: "", upcoming: false };
 
   var elx = {
     eyebrow: document.getElementById("eyebrow"),
@@ -2702,7 +2743,6 @@ window.GMC_ATHLETICS = {
     feature: document.getElementById("feature"),
     search: document.getElementById("f-search"),
     sport: document.getElementById("f-sport"),
-    team: document.getElementById("f-team"),
     upcoming: document.getElementById("c-upcoming"),
     home: document.getElementById("c-home"),
     away: document.getElementById("c-away"),
@@ -2711,25 +2751,22 @@ window.GMC_ATHLETICS = {
     results: document.getElementById("results")
   };
 
-  /* ---- selects, filled from the data so a new sport needs no code change ---- */
-  function fillSelect(select, values) {
-    values.slice().sort().forEach(function (v) {
-      select.appendChild(el("option", { text: v, attrs: { value: v } }));
+  /* ---- sport dropdown, rebuilt whenever the season changes so the order tracks it ---- */
+  function fillSportSelect() {
+    var keep = state.sport;
+    clear(elx.sport);
+    elx.sport.appendChild(el("option", { text: "All sports", attrs: { value: "" } }));
+    orderedSportLabels().forEach(function (v) {
+      elx.sport.appendChild(el("option", { text: v, attrs: { value: v } }));
     });
+    elx.sport.value = keep;
   }
-  (function populate() {
-    var sports = {}, teams = {};
-    DATA.forEach(function (e) { sports[e.sport] = 1; teams[e.team] = 1; });
-    fillSelect(elx.sport, Object.keys(sports));
-    fillSelect(elx.team, Object.keys(teams));
-  })();
 
   /* ---- read filters from the address bar so a view can be shared ---- */
   (function fromURL() {
     var q = new URLSearchParams(location.search);
     if (q.get("season") != null) state.season = q.get("season");
-    if (q.get("sport")) { state.sport = q.get("sport"); elx.sport.value = state.sport; }
-    if (q.get("team")) { state.team = q.get("team"); elx.team.value = state.team; }
+    if (q.get("sport")) state.sport = q.get("sport");
     if (q.get("site") === "Home" || q.get("site") === "Away") state.site = q.get("site");
     if (q.get("upcoming") === "1") state.upcoming = true;
   })();
@@ -2738,7 +2775,6 @@ window.GMC_ATHLETICS = {
     var q = new URLSearchParams();
     if (state.season) q.set("season", state.season);
     if (state.sport) q.set("sport", state.sport);
-    if (state.team) q.set("team", state.team);
     if (state.site) q.set("site", state.site);
     if (state.upcoming) q.set("upcoming", "1");
     var s = q.toString();
@@ -2750,8 +2786,7 @@ window.GMC_ATHLETICS = {
 
   function matches(e) {
     if (!inSeason(e)) return false;
-    if (state.sport && e.sport !== state.sport) return false;
-    if (state.team && e.team !== state.team) return false;
+    if (state.sport && sportLabel(e) !== state.sport) return false;
     if (state.site && e.site !== state.site) return false;
     if (state.upcoming && toDate(e.end || e.date) < today()) return false;
     var q = state.search.trim().toLowerCase();
@@ -2830,13 +2865,12 @@ window.GMC_ATHLETICS = {
     elx.feature.appendChild(count);
 
     elx.feature.appendChild(el("h2", {
-      text: (next.emoji ? next.emoji + "  " : "") + next.sport + " " + next.event
+      text: (next.emoji ? next.emoji + "  " : "") + sportLabel(next) + " " + next.event
     }));
 
     var meta = [
       fmtLong(next.date),
       next.time,
-      next.team,
       next.site === "Home" ? "Home at GMC"
         : next.site + (next.venue ? " at " + next.venue : "")
     ].filter(Boolean).join("  ·  ");
@@ -2848,7 +2882,7 @@ window.GMC_ATHLETICS = {
     var li = el("li");
 
     var title = el("div", { cls: "g-title",
-      text: (e.emoji ? e.emoji + "  " : "") + e.sport + "  " + e.event });
+      text: (e.emoji ? e.emoji + "  " : "") + sportLabel(e) + "  " + e.event });
     title.appendChild(el("span", {
       cls: e.site === "Home" ? "tag" : "tag away",
       text: e.site === "Home" ? "Home" : e.site === "Away" ? "Away" : "Neutral"
@@ -2858,7 +2892,6 @@ window.GMC_ATHLETICS = {
     var bits = [];
     if (e.time) bits.push(e.time);
     bits.push(e.venue === "GMC" ? "GMC, home" : (e.venue || ""));
-    bits.push(e.team);
     if (e.end) bits.push("through " + fmtShort(e.end));
     li.appendChild(el("div", { cls: "g-meta", text: bits.filter(Boolean).join("  ·  ") }));
 
@@ -2870,7 +2903,7 @@ window.GMC_ATHLETICS = {
   function renderResults() {
     var list = DATA.filter(matches).sort(function (a, b) {
       if (a.date !== b.date) return a.date < b.date ? -1 : 1;
-      return a.sport < b.sport ? -1 : 1;
+      return sportLabel(a) < sportLabel(b) ? -1 : 1;
     });
 
     elx.count.textContent = list.length === 1 ? "1 contest" : list.length + " contests";
@@ -2884,9 +2917,7 @@ window.GMC_ATHLETICS = {
       return;
     }
 
-    var todayISO = today().getFullYear() + "-" +
-      String(today().getMonth() + 1).padStart(2, "0") + "-" +
-      String(today().getDate()).padStart(2, "0");
+    var todayISO = localISO(today());
 
     var groups = {}, order = [];
     list.forEach(function (e) {
@@ -2907,6 +2938,7 @@ window.GMC_ATHLETICS = {
     elx.eyebrow.textContent = state.season
       ? "Greer Middle College · 2026-27 · " + state.season
       : "Greer Middle College · 2026-27";
+    fillSportSelect();
     renderTabs();
     renderSpecs();
     renderFeature();
@@ -2920,7 +2952,6 @@ window.GMC_ATHLETICS = {
     elx.search.addEventListener(evt, function () { state.search = elx.search.value; renderResults(); });
   });
   elx.sport.addEventListener("change", function () { state.sport = elx.sport.value; renderResults(); syncURL(); });
-  elx.team.addEventListener("change", function () { state.team = elx.team.value; renderResults(); syncURL(); });
 
   function paintChip(chip, pressed) { chip.setAttribute("aria-pressed", pressed ? "true" : "false"); }
 
@@ -2942,8 +2973,8 @@ window.GMC_ATHLETICS = {
     renderResults(); syncURL();
   });
   elx.clear.addEventListener("click", function () {
-    state.search = ""; state.sport = ""; state.team = ""; state.site = ""; state.upcoming = false;
-    elx.search.value = ""; elx.sport.value = ""; elx.team.value = "";
+    state.search = ""; state.sport = ""; state.site = ""; state.upcoming = false;
+    elx.search.value = ""; elx.sport.value = "";
     paintChip(elx.upcoming, false); paintChip(elx.home, false); paintChip(elx.away, false);
     renderResults(); syncURL();
   });
@@ -2952,6 +2983,11 @@ window.GMC_ATHLETICS = {
   paintChip(elx.upcoming, state.upcoming);
   paintChip(elx.home, state.site === "Home");
   paintChip(elx.away, state.site === "Away");
+
+  var gen = (window.GMC_ATHLETICS && window.GMC_ATHLETICS.generated) || "";
+  document.getElementById("updated-date").textContent = gen
+    ? toDate(gen).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+    : "unknown";
 
   var start = SEASONS.filter(function (s) { return s.key === state.season; })[0] || SEASONS[0];
   setAccent(start.accent, start.soft);
