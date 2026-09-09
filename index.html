@@ -48,19 +48,6 @@
   .updated { margin: 0 0 24px; font-size: 0.95rem; color: var(--dim); }
   .updated b { color: var(--navy); font-weight: 700; }
 
-  /* spec strip: facts at a glance */
-  .specs {
-    display: flex; gap: 26px; flex-wrap: wrap;
-    padding: 16px; margin-bottom: 30px;
-    background: var(--accent-soft); border-left: 4px solid var(--accent);
-    font-size: 0.9rem; color: var(--dim);
-  }
-  .specs div { min-width: 84px; }
-  .specs b {
-    display: block; margin-bottom: 4px;
-    font-size: 1.5rem; line-height: 1; color: var(--navy);
-  }
-
   /* season tabs, each flips the accent */
   .tabs {
     display: flex; border-bottom: 2px solid var(--line); margin-bottom: 28px;
@@ -163,7 +150,6 @@
   :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 
   @media (max-width: 500px) {
-    .specs { gap: 16px; }
     .filter-actions { flex-direction: column; align-items: stretch; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -180,8 +166,6 @@
   <div class="divider"></div>
 
   <p class="updated" id="updated">Last updated: <b id="updated-date">&mdash;</b></p>
-
-  <div class="specs" id="specs" role="status" aria-live="polite"></div>
 
   <div class="tabs" id="tabs" role="tablist" aria-label="Season"></div>
 
@@ -2738,7 +2722,6 @@ window.GMC_ATHLETICS = {
 
   var elx = {
     eyebrow: document.getElementById("eyebrow"),
-    specs: document.getElementById("specs"),
     tabs: document.getElementById("tabs"),
     feature: document.getElementById("feature"),
     search: document.getElementById("f-search"),
@@ -2816,28 +2799,6 @@ window.GMC_ATHLETICS = {
         renderAll();
       });
       elx.tabs.appendChild(b);
-    });
-  }
-
-  /* ---- render: spec strip, scoped to the chosen season ---- */
-  function renderSpecs() {
-    var list = bySeason();
-    var t = today();
-    var left = list.filter(function (e) { return toDate(e.end || e.date) >= t; }).length;
-    var home = list.filter(function (e) { return e.site === "Home"; }).length;
-    var road = list.length - home;
-    var facts = [
-      [list.length, state.season ? state.season + " contests" : "contests this year"],
-      [left, "still to play"],
-      [home, "at home"],
-      [road, "on the road"]
-    ];
-    clear(elx.specs);
-    facts.forEach(function (f) {
-      elx.specs.appendChild(el("div", {},
-        el("b", { text: String(f[0]) }),
-        document.createTextNode(f[1])
-      ));
     });
   }
 
@@ -2940,7 +2901,6 @@ window.GMC_ATHLETICS = {
       : "Greer Middle College · 2026-27";
     fillSportSelect();
     renderTabs();
-    renderSpecs();
     renderFeature();
     renderResults();
     syncURL();
