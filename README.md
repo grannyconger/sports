@@ -1,34 +1,52 @@
 # GMC Athletics 2026-27
 
 A one-page schedule of every Greer Middle College game, match and meet for the
-2026-27 school year. Filter by season, sport, team, or home/away, and see the
-next contest with a countdown.
+2026-27 school year. Pick a season to filter and recolour the page, filter by
+sport or home/away, search, and see the next contest with a countdown.
+
+Live: https://www.coachw.club/sports/
 
 ## What's here
 
-- **`index.html`** — the whole site. HTML, CSS, JavaScript and the schedule data
-  are all in this one file, so it works opened straight off disk or served from
-  anywhere. No build step, no dependencies.
+- **`index.html`** — the whole site. HTML, CSS, JavaScript and the 160 contests
+  are all inlined in this one file, so it works opened straight off disk or
+  served from anywhere. No build step, no dependencies.
 - **`.nojekyll`** — tells GitHub Pages to serve the files as-is.
+- **`README.md`** — this file.
 
-## Hosting on GitHub Pages
+## How the schedule reads
 
-1. Create a new repository and push these two files to it.
-2. In the repo, open **Settings -> Pages**.
-3. Under **Build and deployment**, set **Source** to *Deploy from a branch*,
-   pick the `main` branch and the `/ (root)` folder, and save.
-4. Wait about a minute. The site appears at
-   `https://<your-username>.github.io/<repo-name>/`.
+- **Season tabs** (All / Fall / Winter / Spring) flip a single CSS custom
+  property, `--accent`, so the whole page recolours to match the season.
+- **Sports are listed by name only.** There are no `Varsity`, `JV`, or
+  `JV & Varsity` labels; each sport appears once. The team level is still part of
+  the search text, so typing "JV" in the search box still works.
+- **The Sport dropdown reorders by season.** Whatever season tab is active (or,
+  on "All seasons", whichever season today falls in) floats its sports to the top.
+- **"Last updated"** in the header is read from the data's own build date, so it
+  is always correct after a rebuild.
 
 ## Styling
 
-Every rule follows the Pit Crew Site Style Guide: the token palette, square
-edges, Arial only, one accent colour at a time. Each season tab flips a single
-CSS custom property (`--accent`) and the whole page recolours.
+Every rule follows the Pit Crew Site Style Guide (`GMCAthleticsStyleGuide.md` in
+the source project): the token palette, square edges, Arial only, one accent
+colour on screen at a time.
 
-## Changing the schedule
+## Editing
 
-The contest data is the `window.GMC_ATHLETICS` block near the bottom of
-`index.html`. It is generated from `tools/schedule_data.py` in the source
-project; edit it there and rebuild rather than hand-editing the copy in this
-file.
+Do **not** hand-edit `index.html` — it is generated. In the source project
+(`Desktop/Sports/`):
+
+1. Edit `site_template.html` for markup, style or behaviour, **or** edit
+   `tools/schedule_data.py` for the contest data.
+2. If the data changed, run `python tools/build.py --xlsx` first.
+3. Run `python3 build_single.py`. This rewrites `gmc-athletics-site/index.html`
+   with the current data inlined.
+4. Commit and push from inside `gmc-athletics-site/`.
+
+## Hosting on GitHub Pages
+
+Pages is set to **Deploy from a branch**, `main` / `/ (root)`. After a push the
+site refreshes in about a minute. The GitHub account has a repo-wide custom
+domain, so the address is `https://www.coachw.club/sports/`; the plain
+`github.io` URL redirects there.
