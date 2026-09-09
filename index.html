@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMC Athletics | Pit Crew</title>
+<meta name="description" content="Every Greer Middle College game, match and meet for the 2026-27 school year.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2300205b'/></svg>">
+<style>
+  :root {
+    --paper:#F4F3EF; --navy:#00205b; --blue:#6495ed;
+    --text:#2E3949; --dim:#6B7686; --line:#D9D7D0; --white:#fff;
+    --athletics-teal:rgb(0,113,144);
+    --athletics-aqua:rgb(188,228,229);
+    --athletics-tan:rgb(194,174,147);
+    --athletics-gold:rgb(253,191,104);
+    /* swapped at runtime by setAccent(), one breaker for the whole page */
+    --accent:#00205b; --accent-soft:rgba(0,32,91,0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; min-height: 100vh; padding: 40px 0;
+    background: var(--paper); color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  main { width: min(90%, 700px); margin: 0 auto; }
+
+  /* top band, cheapest signal of which section you are in */
+  .band { height: 8px; background: var(--accent); margin-bottom: 26px; }
+
+  .eyebrow {
+    margin: 0 0 10px;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+
+  h1 {
+    margin: 0; color: var(--accent);
+    font-size: clamp(3rem, 10vw, 5.5rem); line-height: 0.9;
+    letter-spacing: -0.05em; text-transform: uppercase;
+  }
+
+  .divider { width: 60px; height: 5px; margin: 28px 0; background: var(--accent); }
+
+  .lead {
+    margin: 0 0 16px;
+    font-size: 1.15rem; font-weight: 700; line-height: 1.35;
+    color: var(--navy);
+  }
+  p.body { margin: 0 0 24px; font-size: 1.05rem; line-height: 1.6; max-width: 62ch; }
+
+  /* spec strip: facts at a glance */
+  .specs {
+    display: flex; gap: 26px; flex-wrap: wrap;
+    padding: 16px; margin-bottom: 30px;
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+    font-size: 0.9rem; color: var(--dim);
+  }
+  .specs div { min-width: 84px; }
+  .specs b {
+    display: block; margin-bottom: 4px;
+    font-size: 1.5rem; line-height: 1; color: var(--navy);
+  }
+
+  /* season tabs, each flips the accent */
+  .tabs {
+    display: flex; border-bottom: 2px solid var(--line); margin-bottom: 28px;
+  }
+  .tab {
+    flex: 1; padding: 12px 4px; margin-bottom: -2px;
+    border: none; border-bottom: 4px solid transparent; background: transparent;
+    color: var(--dim); font: bold 0.8rem Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer;
+  }
+  .tab.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* next-up feature, same tint treatment as the spec strip */
+  .feature {
+    padding: 20px; margin-bottom: 30px;
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+  }
+  .feature .count { font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--accent); }
+  .feature .count small {
+    display: block; margin-top: 6px;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.15em; color: var(--dim);
+  }
+  .feature h2 {
+    margin: 12px 0 6px; color: var(--navy);
+    font-size: clamp(1.4rem, 4.5vw, 2rem); line-height: 1.25; letter-spacing: -0.02em;
+  }
+  .feature .fmeta { font-size: 0.9rem; color: var(--dim); line-height: 1.5; }
+
+  /* filters */
+  .filters { margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .field label {
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim);
+  }
+  .field input, .field select {
+    font: 1rem Arial, sans-serif; padding: 12px;
+    border: 2px solid var(--line); background: var(--white); color: var(--text);
+  }
+
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip {
+    padding: 10px 16px;
+    border: 2px solid var(--accent); background: transparent; color: var(--accent);
+    font: bold 0.8rem/1 Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--white); }
+
+  .filter-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .result-count { font-size: 0.9rem; color: var(--dim); }
+  .btn-clear {
+    border: none; background: transparent; color: var(--accent);
+    font: bold 0.9rem Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; padding: 8px 0;
+  }
+
+  /* one day heading, then a square-bullet list of its contests */
+  .day {
+    margin: 0 0 8px; padding-top: 18px;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent);
+  }
+  ul.games { margin: 0 0 10px; padding: 0; list-style: none; }
+  ul.games li {
+    padding: 12px 0 12px 18px; position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.games li::before {
+    content: ""; position: absolute; left: 0; top: 18px;
+    width: 7px; height: 7px; background: var(--accent);
+  }
+  .g-title { font-size: 1rem; font-weight: 700; line-height: 1.4; color: var(--navy); }
+  .g-meta { margin-top: 2px; font-size: 0.9rem; line-height: 1.5; color: var(--dim); }
+  .g-note { margin-top: 4px; font-size: 0.9rem; color: var(--dim); }
+
+  .tag {
+    display: inline-block; margin-left: 8px; padding: 2px 7px;
+    border: 2px solid var(--accent); color: var(--accent);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; vertical-align: middle;
+  }
+  .tag.away { border-color: var(--dim); color: var(--dim); }
+
+  .empty {
+    padding: 20px;
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+    font-size: 0.95rem; color: var(--dim);
+  }
+  .empty strong { display: block; margin-bottom: 4px; color: var(--navy); }
+
+  .footer {
+    width: min(90%, 700px); margin: 44px auto 0; padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 0.9rem; line-height: 1.6; color: var(--dim);
+  }
+
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  @media (max-width: 500px) {
+    .specs { gap: 16px; }
+    .filter-actions { flex-direction: column; align-items: stretch; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="band"></div>
+
+<main>
+  <p class="eyebrow" id="eyebrow">Greer Middle College &middot; 2026-27</p>
+  <h1>GMC Athletics</h1>
+  <div class="divider"></div>
+
+  <p class="lead">Every game, match and meet for the 2026-27 school year, in one place.</p>
+  <p class="body">Pick a season to filter the list and recolour the page. Dates move, so check with the coach or the front office before you travel.</p>
+
+  <div class="specs" id="specs" role="status" aria-live="polite"></div>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Season"></div>
+
+  <section class="feature" id="feature" aria-label="Next contest"></section>
+
+  <form class="filters" aria-label="Filter the schedule" onsubmit="return false">
+    <div class="field">
+      <label for="f-search">Search</label>
+      <input type="search" id="f-search" placeholder="Opponent, venue, anything">
+    </div>
+    <div class="field">
+      <label for="f-sport">Sport</label>
+      <select id="f-sport"><option value="">All sports</option></select>
+    </div>
+    <div class="field">
+      <label for="f-team">Team</label>
+      <select id="f-team"><option value="">All teams</option></select>
+    </div>
+
+    <div class="chips" role="group" aria-label="Quick filters">
+      <button type="button" class="chip" id="c-upcoming" aria-pressed="false">Upcoming only</button>
+      <button type="button" class="chip" id="c-home" aria-pressed="false">Home</button>
+      <button type="button" class="chip" id="c-away" aria-pressed="false">Away</button>
+    </div>
+
+    <div class="filter-actions">
+      <span class="result-count" id="result-count" role="status">&mdash;</span>
+      <button type="button" class="btn-clear" id="btn-clear">Clear filters</button>
+    </div>
+  </form>
+
+  <div id="results"></div>
+</main>
+
+<footer class="footer">
+  <p>Built from the GMC 2026-27 athletics calendar. Some team levels and dates are best guesses from a month-grid calendar; confirm anything that matters with the coach.</p>
+</footer>
+
+<script>
+// Generated by tools/build.py. Do not edit by hand.
+window.GMC_ATHLETICS = {
+  "school": "Greer Middle College Charter High School",
+  "year": "2026-27",
+  "generated": "2026-09-09",
+  "events": [
+    {
+      "date": "2026-08-12",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Greer with Chapman",
+      "site": "Away",
+      "venue": "Greer",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 1,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-08-15",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Byrnes",
+      "site": "Away",
+      "venue": "Byrnes",
+      "time": "",
+      "note": "",
+      "id": 2,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-08-20",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Christ Church",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:00 PM",
+      "note": "",
+      "id": 3,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-08-20",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs GTC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 4,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-08-22",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Gray Collegiate Sprint Classic",
+      "site": "Away",
+      "venue": "USC",
+      "time": "",
+      "note": "",
+      "id": 5,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-08-24",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at GTC",
+      "site": "Away",
+      "venue": "GTC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 6,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-08-26",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Tri meet vs Daniel and St. Joseph's",
+      "site": "Away",
+      "venue": "Spaulding Farm Pool",
+      "time": "",
+      "note": "",
+      "id": 7,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-08-27",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Greer",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:00 PM",
+      "note": "",
+      "id": 8,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-08-27",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 9,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-08-27",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 10,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-08-27",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Quad meet at Newberry",
+      "site": "Away",
+      "venue": "Newberry",
+      "time": "",
+      "note": "",
+      "id": 11,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-08-29",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "WNCCC Carnival",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 12,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-08-31",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Chapman",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 13,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-01",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 14,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-01",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 15,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-02",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Southside Christian",
+      "site": "Away",
+      "venue": "Southside Christian",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 16,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-03",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 17,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-03",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 18,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-05",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Eye Opener",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 19,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-09-08",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 20,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-08",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 21,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-09",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Travelers Rest",
+      "site": "Away",
+      "venue": "Travelers Rest",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 22,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-10",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 23,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-10",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 24,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-12",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Yellow Jacket Invitational",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 25,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-09-15",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Boiling Springs meet",
+      "site": "Away",
+      "venue": "Boiling Springs",
+      "time": "",
+      "note": "Marked tentative on the calendar",
+      "id": 26,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-09-15",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Blue Ridge",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 27,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-15",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 28,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-15",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 29,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-15",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "vs Greenville Hurricanes",
+      "site": "Away",
+      "venue": "Devenger Pool",
+      "time": "",
+      "note": "",
+      "id": 30,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-09-17",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Woodruff meet",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "Marked tentative on the calendar",
+      "id": 31,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-09-17",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Blue Ridge with Riverside",
+      "site": "Away",
+      "venue": "Blue Ridge",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 32,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-17",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 33,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-17",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 34,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-18",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Meet, out all day",
+      "site": "Away",
+      "venue": "Greenville County Aquatic Center",
+      "time": "",
+      "note": "",
+      "id": 35,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-09-21",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 36,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-22",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 37,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-22",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 38,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-23",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Tournament",
+      "event": "Greenville County event",
+      "site": "Away",
+      "venue": "Greenville County",
+      "time": "9:00 AM to 4:00 PM",
+      "note": "",
+      "id": 39,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-24",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Brashier",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:00 PM",
+      "note": "",
+      "id": 40,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-24",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 41,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-24",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 42,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-25",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Low Country",
+      "site": "Away",
+      "venue": "Low Country",
+      "time": "",
+      "note": "Team returns Sunday",
+      "id": 43,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-09-26",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Meet",
+      "site": "Away",
+      "venue": "Greenville County Aquatic Center",
+      "time": "",
+      "note": "",
+      "id": 44,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-09-28",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Eastside",
+      "site": "Away",
+      "venue": "Eastside",
+      "time": "4:00 PM",
+      "note": "",
+      "id": 45,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-09-28",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Chapman",
+      "site": "Away",
+      "venue": "Chapman",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 46,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-29",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 47,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-09-29",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 48,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-09-29",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Region Championship",
+      "site": "Away",
+      "venue": "Greenville County Aquatic Center",
+      "time": "",
+      "note": "",
+      "id": 49,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-10-01",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs St. Joseph's",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:00 PM",
+      "note": "",
+      "id": 50,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-10-01",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 51,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-10-01",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 52,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-02",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "BSN Invite",
+      "site": "Away",
+      "venue": "Atlanta",
+      "time": "",
+      "note": "Team returns Saturday",
+      "id": 53,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-10-03",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Woodmont",
+      "site": "Away",
+      "venue": "Woodmont",
+      "time": "",
+      "note": "",
+      "id": 54,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-05",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Chapman",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "Team level not printed on the calendar",
+      "id": 55,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-10-06",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 56,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-10-06",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 57,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-08",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "4:30 PM",
+      "note": "",
+      "id": 58,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-10-08",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 59,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-08",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity Boys",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "State Championship",
+      "site": "Away",
+      "venue": "USC",
+      "time": "",
+      "note": "",
+      "id": 60,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-10-10",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Coaches Classic",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 61,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-10-10",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Tournament",
+      "event": "Quad match vs Christ Church, Greer, Lake Wylie",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 62,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-10",
+      "end": "",
+      "sport": "Swimming",
+      "team": "Varsity Girls",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "State Championship",
+      "site": "Away",
+      "venue": "USC",
+      "time": "",
+      "note": "",
+      "id": 63,
+      "emoji": "🏊"
+    },
+    {
+      "date": "2026-10-13",
+      "end": "",
+      "sport": "Girls Tennis",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "4:30 PM",
+      "note": "Senior Night",
+      "id": 64,
+      "emoji": "🎾"
+    },
+    {
+      "date": "2026-10-13",
+      "end": "",
+      "sport": "Girls Volleyball",
+      "team": "JV & Varsity",
+      "season": "Fall",
+      "kind": "Match",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "Senior Night",
+      "id": 65,
+      "emoji": "🏐"
+    },
+    {
+      "date": "2026-10-14",
+      "end": "",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Tournament",
+      "event": "Region Tournament",
+      "site": "Away",
+      "venue": "Links of Tryon",
+      "time": "10:30 AM",
+      "note": "",
+      "id": 66,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-10-17",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Starlight",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 67,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-10-24",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "Region Meet",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "9:00 AM",
+      "note": "",
+      "id": 68,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-10-26",
+      "end": "2026-10-27",
+      "sport": "Girls Golf",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Tournament",
+      "event": "State Tournament",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "Two-day event",
+      "id": 69,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2026-10-31",
+      "end": "",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "County Meet",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "",
+      "id": 70,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-11-06",
+      "end": "2026-11-07",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "State Qualifiers",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "Two-day event",
+      "id": 71,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-11-13",
+      "end": "2026-11-14",
+      "sport": "Cross Country",
+      "team": "Varsity",
+      "season": "Fall",
+      "kind": "Meet",
+      "event": "State Championship",
+      "site": "Away",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "Two-day event",
+      "id": 72,
+      "emoji": "🏃"
+    },
+    {
+      "date": "2026-11-16",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Scrimmage",
+      "event": "vs St. Joseph's",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "6:00 PM",
+      "note": "",
+      "id": 73,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-11-17",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Scrimmage",
+      "event": "vs Pendleton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 PM",
+      "note": "",
+      "id": 74,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-11-24",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Scrimmage",
+      "event": "vs Liberty",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "6:00 PM",
+      "note": "",
+      "id": 75,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-11-28",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Green Upstate",
+      "site": "Neutral",
+      "venue": "Liberty",
+      "time": "2:00 PM",
+      "note": "",
+      "id": 76,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-11-30",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Carolina",
+      "site": "Away",
+      "venue": "Carolina",
+      "time": "5:30 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 77,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-11-30",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Carolina",
+      "site": "Away",
+      "venue": "Carolina",
+      "time": "5:30 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 78,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-03",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Greenville Hurricanes",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 79,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-03",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Greenville Hurricanes",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 80,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-04",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at BMC",
+      "site": "Away",
+      "venue": "BMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 81,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-04",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at BMC",
+      "site": "Away",
+      "venue": "BMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 82,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-09",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs GTC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 83,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-09",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs GTC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 84,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-10",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Greenville Hurricanes",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 85,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-10",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Greenville Hurricanes",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:00 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 86,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-11",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Palmetto",
+      "site": "Away",
+      "venue": "Palmetto",
+      "time": "5:30 PM",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 87,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-11",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Palmetto",
+      "site": "Away",
+      "venue": "Palmetto",
+      "time": "5:30 PM",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 88,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-15",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 89,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-15",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 90,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-18",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 91,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-18",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 92,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2026-12-19",
+      "end": "2026-12-22",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Tournament",
+      "event": "A1 Hoops Tournament",
+      "site": "Away",
+      "venue": "JL Mann",
+      "time": "",
+      "note": "Runs Dec 19, 21 and 22",
+      "id": 93,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-05",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 94,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-05",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 95,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-08",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 96,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-08",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 97,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-12",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 98,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-12",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 99,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-15",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 100,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-15",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 101,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-19",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 102,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-19",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 103,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-22",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 104,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-22",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 105,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-25",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "JV",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "",
+      "id": 106,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-26",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 107,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-26",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 108,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-29",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 109,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-01-29",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 110,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-01",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "JV",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 111,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-02",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 112,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-02",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 113,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-04",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "JV",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "",
+      "note": "",
+      "id": 114,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-05",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 115,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-05",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 116,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-08",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "JV",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 117,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-09",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "",
+      "note": "Tripleheader with the girls varsity game",
+      "id": 118,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-09",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "",
+      "note": "Tripleheader with the boys JV and varsity games",
+      "id": 119,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-10",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "JV",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "",
+      "note": "",
+      "id": 120,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-11",
+      "end": "",
+      "sport": "Boys Basketball",
+      "team": "JV & Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Senior Night. Tripleheader with the girls varsity game",
+      "id": 121,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-11",
+      "end": "",
+      "sport": "Girls Basketball",
+      "team": "Varsity",
+      "season": "Winter",
+      "kind": "Game",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "Senior Night. Tripleheader with the boys JV and varsity games",
+      "id": 122,
+      "emoji": "🏀"
+    },
+    {
+      "date": "2027-02-16",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "JV & Varsity",
+      "season": "Spring",
+      "kind": "Scrimmage",
+      "event": "at Gaffney",
+      "site": "Away",
+      "venue": "Gaffney",
+      "time": "",
+      "note": "",
+      "id": 123,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-16",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "JV & Varsity",
+      "season": "Spring",
+      "kind": "Scrimmage",
+      "event": "vs Christ Church",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 124,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-18",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Scrimmage",
+      "event": "vs Spartanburg",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "6:30 PM",
+      "note": "",
+      "id": 125,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-19",
+      "end": "2027-02-21",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Tournament",
+      "event": "Charleston Soccer Shootout",
+      "site": "Away",
+      "venue": "Charleston",
+      "time": "",
+      "note": "Calendar also shows CHS on Feb 21, read as the closing day",
+      "id": 126,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-22",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 127,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-23",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "JV & Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Hurricanes",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "5:30 / 7:00 PM",
+      "note": "",
+      "id": 128,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-02-26",
+      "end": "2027-02-28",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Tournament",
+      "event": "Local tournament",
+      "site": "Neutral",
+      "venue": "Venue not listed",
+      "time": "",
+      "note": "Runs through Feb 28",
+      "id": 129,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-02",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "",
+      "note": "",
+      "id": 130,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-02",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 131,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-05",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 132,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-05",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "",
+      "id": 133,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-09",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 134,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-09",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "",
+      "note": "",
+      "id": 135,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-12",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "",
+      "note": "",
+      "id": 136,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-12",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 137,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-17",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "JV & Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Green Charter",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 138,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-19",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "",
+      "note": "",
+      "id": 139,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-19",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 140,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-30",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Woodruff",
+      "site": "Away",
+      "venue": "Woodruff",
+      "time": "",
+      "note": "",
+      "id": 141,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-03-30",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Woodruff",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 142,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-02",
+      "end": "",
+      "sport": "Boys Golf",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Tournament",
+      "event": "Golf tournament",
+      "site": "Away",
+      "venue": "Cherokee Valley",
+      "time": "",
+      "note": "",
+      "id": 143,
+      "emoji": "⛳"
+    },
+    {
+      "date": "2027-04-02",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at SSC",
+      "site": "Away",
+      "venue": "SSC",
+      "time": "",
+      "note": "",
+      "id": 144,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-02",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs SSC",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 145,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-06",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 146,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-06",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "",
+      "note": "",
+      "id": 147,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-09",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Blue Ridge",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 148,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-12",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Landrum",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 149,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-12",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Landrum",
+      "site": "Away",
+      "venue": "Landrum",
+      "time": "",
+      "note": "",
+      "id": 150,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-13",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs MVP",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 151,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-13",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at MVP",
+      "site": "Away",
+      "venue": "MVP",
+      "time": "",
+      "note": "",
+      "id": 152,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-15",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Clinton",
+      "site": "Away",
+      "venue": "Clinton",
+      "time": "",
+      "note": "",
+      "id": 153,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-15",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Clinton",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 154,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-19",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Chesnee",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 155,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-19",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at Chesnee",
+      "site": "Away",
+      "venue": "Chesnee",
+      "time": "",
+      "note": "",
+      "id": 156,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-20",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Palmetto",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 157,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-20",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs Palmetto",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 158,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-22",
+      "end": "",
+      "sport": "Boys Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "vs HPA",
+      "site": "Home",
+      "venue": "GMC",
+      "time": "",
+      "note": "",
+      "id": 159,
+      "emoji": "⚽"
+    },
+    {
+      "date": "2027-04-22",
+      "end": "",
+      "sport": "Girls Soccer",
+      "team": "Varsity",
+      "season": "Spring",
+      "kind": "Game",
+      "event": "at HPA",
+      "site": "Away",
+      "venue": "HPA",
+      "time": "",
+      "note": "",
+      "id": 160,
+      "emoji": "⚽"
+    }
+  ]
+};
+
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var DATA = (window.GMC_ATHLETICS && window.GMC_ATHLETICS.events) || [];
+
+  /* ---- date helpers. Parse ISO by hand so a bare date is not read as UTC. ---- */
+  function toDate(iso) {
+    var p = String(iso).split("-");
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  function today() {
+    var d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+  function fmtLong(iso) {
+    return toDate(iso).toLocaleDateString(undefined, {
+      weekday: "long", month: "long", day: "numeric", year: "numeric"
+    });
+  }
+  function fmtShort(iso) {
+    return toDate(iso).toLocaleDateString(undefined, {
+      weekday: "short", month: "short", day: "numeric"
+    });
+  }
+
+  /* ---- tiny DOM builder. Data goes in as textContent, never innerHTML. ---- */
+  function el(tag, opts) {
+    var node = document.createElement(tag);
+    opts = opts || {};
+    if (opts.text != null) node.textContent = opts.text;
+    if (opts.cls) node.className = opts.cls;
+    if (opts.attrs) Object.keys(opts.attrs).forEach(function (k) {
+      node.setAttribute(k, opts.attrs[k]);
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c) node.appendChild(c);
+    }
+    return node;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  /* ---- one accent per season, flipped like a breaker ---- */
+  var SEASONS = [
+    { key: "",       label: "All seasons", accent: "#00205b", soft: "rgba(0,32,91,0.08)" },
+    { key: "Fall",   label: "Fall",        accent: "#007190", soft: "rgba(0,113,144,0.08)" },
+    { key: "Winter", label: "Winter",      accent: "#1B4FA8", soft: "rgba(27,79,168,0.08)" },
+    { key: "Spring", label: "Spring",      accent: "#0E6E66", soft: "rgba(14,110,102,0.08)" }
+  ];
+  function setAccent(color, soft) {
+    document.documentElement.style.setProperty("--accent", color);
+    document.documentElement.style.setProperty("--accent-soft", soft);
+  }
+
+  var state = { season: "", search: "", sport: "", team: "", site: "", upcoming: false };
+
+  var elx = {
+    eyebrow: document.getElementById("eyebrow"),
+    specs: document.getElementById("specs"),
+    tabs: document.getElementById("tabs"),
+    feature: document.getElementById("feature"),
+    search: document.getElementById("f-search"),
+    sport: document.getElementById("f-sport"),
+    team: document.getElementById("f-team"),
+    upcoming: document.getElementById("c-upcoming"),
+    home: document.getElementById("c-home"),
+    away: document.getElementById("c-away"),
+    clear: document.getElementById("btn-clear"),
+    count: document.getElementById("result-count"),
+    results: document.getElementById("results")
+  };
+
+  /* ---- selects, filled from the data so a new sport needs no code change ---- */
+  function fillSelect(select, values) {
+    values.slice().sort().forEach(function (v) {
+      select.appendChild(el("option", { text: v, attrs: { value: v } }));
+    });
+  }
+  (function populate() {
+    var sports = {}, teams = {};
+    DATA.forEach(function (e) { sports[e.sport] = 1; teams[e.team] = 1; });
+    fillSelect(elx.sport, Object.keys(sports));
+    fillSelect(elx.team, Object.keys(teams));
+  })();
+
+  /* ---- read filters from the address bar so a view can be shared ---- */
+  (function fromURL() {
+    var q = new URLSearchParams(location.search);
+    if (q.get("season") != null) state.season = q.get("season");
+    if (q.get("sport")) { state.sport = q.get("sport"); elx.sport.value = state.sport; }
+    if (q.get("team")) { state.team = q.get("team"); elx.team.value = state.team; }
+    if (q.get("site") === "Home" || q.get("site") === "Away") state.site = q.get("site");
+    if (q.get("upcoming") === "1") state.upcoming = true;
+  })();
+
+  function syncURL() {
+    var q = new URLSearchParams();
+    if (state.season) q.set("season", state.season);
+    if (state.sport) q.set("sport", state.sport);
+    if (state.team) q.set("team", state.team);
+    if (state.site) q.set("site", state.site);
+    if (state.upcoming) q.set("upcoming", "1");
+    var s = q.toString();
+    history.replaceState(null, "", s ? "?" + s : location.pathname);
+  }
+
+  /* ---- filtering ---- */
+  function inSeason(e) { return !state.season || e.season === state.season; }
+
+  function matches(e) {
+    if (!inSeason(e)) return false;
+    if (state.sport && e.sport !== state.sport) return false;
+    if (state.team && e.team !== state.team) return false;
+    if (state.site && e.site !== state.site) return false;
+    if (state.upcoming && toDate(e.end || e.date) < today()) return false;
+    var q = state.search.trim().toLowerCase();
+    if (q) {
+      var hay = [e.sport, e.team, e.event, e.venue, e.note, e.kind, e.season]
+        .join(" ").toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  }
+
+  function bySeason() { return DATA.filter(inSeason); }
+
+  /* ---- render: season tabs ---- */
+  function renderTabs() {
+    clear(elx.tabs);
+    SEASONS.forEach(function (s) {
+      var on = s.key === state.season;
+      var b = el("button", {
+        text: s.label,
+        cls: on ? "tab on" : "tab",
+        attrs: { type: "button", role: "tab", "aria-selected": on ? "true" : "false" }
+      });
+      b.addEventListener("click", function () {
+        state.season = s.key;
+        setAccent(s.accent, s.soft);
+        renderAll();
+      });
+      elx.tabs.appendChild(b);
+    });
+  }
+
+  /* ---- render: spec strip, scoped to the chosen season ---- */
+  function renderSpecs() {
+    var list = bySeason();
+    var t = today();
+    var left = list.filter(function (e) { return toDate(e.end || e.date) >= t; }).length;
+    var home = list.filter(function (e) { return e.site === "Home"; }).length;
+    var road = list.length - home;
+    var facts = [
+      [list.length, state.season ? state.season + " contests" : "contests this year"],
+      [left, "still to play"],
+      [home, "at home"],
+      [road, "on the road"]
+    ];
+    clear(elx.specs);
+    facts.forEach(function (f) {
+      elx.specs.appendChild(el("div", {},
+        el("b", { text: String(f[0]) }),
+        document.createTextNode(f[1])
+      ));
+    });
+  }
+
+  /* ---- render: the next contest ---- */
+  function renderFeature() {
+    var t = today();
+    var next = bySeason()
+      .filter(function (e) { return toDate(e.date) >= t; })
+      .sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0];
+
+    clear(elx.feature);
+
+    if (!next) {
+      elx.feature.appendChild(el("div", { cls: "count", text: "—" },
+        el("small", { text: "season complete" })));
+      elx.feature.appendChild(el("h2", { text: "Nothing left on the calendar" }));
+      return;
+    }
+
+    var out = daysBetween(t, toDate(next.date));
+    var count = el("div", { cls: "count", text: out <= 0 ? "Today" : String(out) });
+    count.appendChild(el("small", {
+      text: out <= 0 ? "game day" : (out === 1 ? "day away" : "days away")
+    }));
+    elx.feature.appendChild(count);
+
+    elx.feature.appendChild(el("h2", {
+      text: (next.emoji ? next.emoji + "  " : "") + next.sport + " " + next.event
+    }));
+
+    var meta = [
+      fmtLong(next.date),
+      next.time,
+      next.team,
+      next.site === "Home" ? "Home at GMC"
+        : next.site + (next.venue ? " at " + next.venue : "")
+    ].filter(Boolean).join("  ·  ");
+    elx.feature.appendChild(el("p", { cls: "fmeta", text: meta }));
+  }
+
+  /* ---- render: one contest as a list item ---- */
+  function gameItem(e) {
+    var li = el("li");
+
+    var title = el("div", { cls: "g-title",
+      text: (e.emoji ? e.emoji + "  " : "") + e.sport + "  " + e.event });
+    title.appendChild(el("span", {
+      cls: e.site === "Home" ? "tag" : "tag away",
+      text: e.site === "Home" ? "Home" : e.site === "Away" ? "Away" : "Neutral"
+    }));
+    li.appendChild(title);
+
+    var bits = [];
+    if (e.time) bits.push(e.time);
+    bits.push(e.venue === "GMC" ? "GMC, home" : (e.venue || ""));
+    bits.push(e.team);
+    if (e.end) bits.push("through " + fmtShort(e.end));
+    li.appendChild(el("div", { cls: "g-meta", text: bits.filter(Boolean).join("  ·  ") }));
+
+    if (e.note) li.appendChild(el("div", { cls: "g-note", text: "⚠️  " + e.note }));
+    return li;
+  }
+
+  /* ---- render: the grouped results list ---- */
+  function renderResults() {
+    var list = DATA.filter(matches).sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      return a.sport < b.sport ? -1 : 1;
+    });
+
+    elx.count.textContent = list.length === 1 ? "1 contest" : list.length + " contests";
+    clear(elx.results);
+
+    if (!list.length) {
+      elx.results.appendChild(el("div", { cls: "empty" },
+        el("strong", { text: "No contests match those filters" }),
+        document.createTextNode("Try clearing the date range or picking a different sport.")
+      ));
+      return;
+    }
+
+    var todayISO = today().getFullYear() + "-" +
+      String(today().getMonth() + 1).padStart(2, "0") + "-" +
+      String(today().getDate()).padStart(2, "0");
+
+    var groups = {}, order = [];
+    list.forEach(function (e) {
+      if (!groups[e.date]) { groups[e.date] = []; order.push(e.date); }
+      groups[e.date].push(e);
+    });
+
+    order.forEach(function (d) {
+      var head = el("h3", { cls: "day", text: fmtLong(d) + (d === todayISO ? "  —  Today" : "") });
+      elx.results.appendChild(head);
+      var ul = el("ul", { cls: "games" });
+      groups[d].forEach(function (e) { ul.appendChild(gameItem(e)); });
+      elx.results.appendChild(ul);
+    });
+  }
+
+  function renderAll() {
+    elx.eyebrow.textContent = state.season
+      ? "Greer Middle College · 2026-27 · " + state.season
+      : "Greer Middle College · 2026-27";
+    renderTabs();
+    renderSpecs();
+    renderFeature();
+    renderResults();
+    syncURL();
+  }
+
+  /* ---- wiring ---- */
+  elx.search.value = state.search;
+  ["input", "change"].forEach(function (evt) {
+    elx.search.addEventListener(evt, function () { state.search = elx.search.value; renderResults(); });
+  });
+  elx.sport.addEventListener("change", function () { state.sport = elx.sport.value; renderResults(); syncURL(); });
+  elx.team.addEventListener("change", function () { state.team = elx.team.value; renderResults(); syncURL(); });
+
+  function paintChip(chip, pressed) { chip.setAttribute("aria-pressed", pressed ? "true" : "false"); }
+
+  elx.upcoming.addEventListener("click", function () {
+    state.upcoming = !state.upcoming;
+    paintChip(elx.upcoming, state.upcoming);
+    renderResults(); syncURL();
+  });
+  elx.home.addEventListener("click", function () {
+    state.site = state.site === "Home" ? "" : "Home";
+    paintChip(elx.home, state.site === "Home");
+    paintChip(elx.away, false);
+    renderResults(); syncURL();
+  });
+  elx.away.addEventListener("click", function () {
+    state.site = state.site === "Away" ? "" : "Away";
+    paintChip(elx.away, state.site === "Away");
+    paintChip(elx.home, false);
+    renderResults(); syncURL();
+  });
+  elx.clear.addEventListener("click", function () {
+    state.search = ""; state.sport = ""; state.team = ""; state.site = ""; state.upcoming = false;
+    elx.search.value = ""; elx.sport.value = ""; elx.team.value = "";
+    paintChip(elx.upcoming, false); paintChip(elx.home, false); paintChip(elx.away, false);
+    renderResults(); syncURL();
+  });
+
+  /* reflect any URL state onto the chips, then draw */
+  paintChip(elx.upcoming, state.upcoming);
+  paintChip(elx.home, state.site === "Home");
+  paintChip(elx.away, state.site === "Away");
+
+  var start = SEASONS.filter(function (s) { return s.key === state.season; })[0] || SEASONS[0];
+  setAccent(start.accent, start.soft);
+  renderAll();
+})();
+</script>
+</body>
+</html>
